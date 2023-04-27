@@ -26,7 +26,7 @@ export interface IState {
   images: IImage[];
   largeImageURL: IgetLargeImage;
   loading: boolean;
-  error: null;
+  error: string;
   keyword: string;
   page: number;
   lastPage: boolean;

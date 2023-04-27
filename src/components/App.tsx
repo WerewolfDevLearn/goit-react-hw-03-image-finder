@@ -5,6 +5,7 @@ import Button from "./Button/Button";
 import Loader from "./Loader/Loader";
 import Modal from "./Modal/Modal";
 import ModalImage from "./ModalImage/ModalImage";
+import ErrorComp from "./Error/Error";
 import imageApi from "../service/api.js";
 import { IState, IData, IgetLargeImage } from "./interfaces/interfaces";
 
@@ -13,7 +14,7 @@ class App extends Component<{}, IState> {
     images: [],
     largeImageURL: { url: "", alt: "" },
     loading: false,
-    error: null,
+    error: "",
     keyword: "",
     page: 1,
     lastPage: false,
@@ -58,20 +59,25 @@ class App extends Component<{}, IState> {
     });
   }
 
-  fetchImage = () => {
-    const { keyword, page } = this.state;
-    this.setState({ loading: true });
-    imageApi(keyword, page)
-      .then(data => {
-        this.setState(prevState => ({
-          images: [...prevState.images, ...data.hits],
-          page: prevState.page + 1,
-        }));
-
-        this.isLastPage(data);
-      })
-      .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ loading: false }));
+  fetchImage = async () => {
+    try {
+      const { keyword, page } = this.state;
+      this.setState({ loading: true });
+      const data = await imageApi(keyword, page);
+      if (!data.total) {
+        throw new Error("Sorry. There is no photos on your request.");
+      }
+      this.setState(prevState => ({
+        images: [...prevState.images, ...data.hits],
+        page: prevState.page + 1,
+      }));
+      this.isLastPage(data);
+    } catch (error: any) {
+      this.setState({ error: error.message });
+      setTimeout(() => this.setState({ error: "" }), 3000);
+    } finally {
+      this.setState({ loading: false });
+    }
   };
 
   render() {
@@ -87,7 +93,7 @@ class App extends Component<{}, IState> {
         )}
         {images.length > 0 && !lastPage && !loading && <Button text='Load more' buttonAction={this.fetchImage} />}
         {loading && <Loader />}
-        {error && <p>ERROR</p>}
+        {error && <ErrorComp error={error} />}
       </>
     );
   }
