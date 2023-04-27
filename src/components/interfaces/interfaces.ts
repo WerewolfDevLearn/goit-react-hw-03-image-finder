@@ -65,3 +65,8 @@ export interface IItemImage {
   id: number;
   onImageClick(largeImageURL: IgetLargeImage): void;
 }
+
+export interface IButton {
+  text: string;
+  buttonAction(): void;
+}
