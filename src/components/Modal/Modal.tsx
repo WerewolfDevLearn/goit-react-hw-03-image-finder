@@ -1,4 +1,4 @@
-import { Component, KeyboardEvent } from "react";
+import React, { Component } from "react";
 import { ModaLProps } from "../interfaces/interfaces";
 class Modal extends Component<ModaLProps> {
   componentDidMount() {
@@ -7,11 +7,11 @@ class Modal extends Component<ModaLProps> {
 
   componentWillUnmount() {
     window.removeEventListener("keydown", this.pressEscBtn);
-    this.props.onCloseModal();
   }
 
-  pressEscBtn = e => {
-    if (e.code === "Escape") {
+  pressEscBtn = (event: KeyboardEvent) => {
+    console.log(event);
+    if (event.code === "Escape") {
       this.props.onCloseModal();
     }
   };

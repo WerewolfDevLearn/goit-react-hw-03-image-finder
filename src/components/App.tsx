@@ -6,12 +6,12 @@ import Loader from "./Loader/Loader";
 import Modal from "./Modal/Modal";
 import ModalImage from "./ModalImage/ModalImage";
 import imageApi from "../service/api.js";
-import { IState, IData } from "./interfaces/interfaces";
+import { IState, IData, IgetLargeImage } from "./interfaces/interfaces";
 
 class App extends Component<{}, IState> {
   state = {
     images: [],
-    largeImageURL: "",
+    largeImageURL: { url: "", alt: "" },
     loading: false,
     error: null,
     keyword: "",
@@ -37,17 +37,15 @@ class App extends Component<{}, IState> {
     });
   };
 
-  saveLargeImage = (largeImageURL: string) => {
+  saveLargeImage = (largeImageURL: IgetLargeImage) => {
     this.setState({ largeImageURL: largeImageURL });
   };
 
   hideLargeImage = () => {
-    this.setState({ largeImageURL: "" });
+    this.setState({ largeImageURL: { url: "", alt: "" } });
   };
 
   isLastPage = (data: IData) => {
-    console.log(this.state.images.length);
-    console.log(data.totalHits);
     if (this.state.images.length === data.totalHits) {
       this.setState({ lastPage: true });
     }
@@ -82,7 +80,7 @@ class App extends Component<{}, IState> {
       <>
         <SearchBar onSubmitForm={this.onSubmitForm} />
         {images.length > 0 && <ImageGallery images={images} onImageClick={this.saveLargeImage} />}
-        {largeImageURL && (
+        {largeImageURL.url && (
           <Modal onCloseModal={this.hideLargeImage}>
             <ModalImage largeImage={largeImageURL} />
           </Modal>
