@@ -15,7 +15,7 @@ export interface IImage {
   tags: string;
   type?: string;
   user?: string;
-  userImageURL: string;
+  userImageURL?: string;
   user_id?: number;
   views?: number;
   webformatHeight?: number;
@@ -26,7 +26,7 @@ export interface IState {
   images: IImage[];
   largeImageURL: IgetLargeImage;
   loading: boolean;
-  error: string;
+  message: string;
   keyword: string;
   page: number;
   lastPage: boolean;

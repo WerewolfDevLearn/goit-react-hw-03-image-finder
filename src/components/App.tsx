@@ -5,16 +5,18 @@ import Button from "./Button/Button";
 import Loader from "./Loader/Loader";
 import Modal from "./Modal/Modal";
 import ModalImage from "./ModalImage/ModalImage";
-import ErrorComp from "./Error/Error";
+import Message from "./Message/Message";
 import imageApi from "../service/api.js";
-import { IState, IData, IgetLargeImage } from "./interfaces/interfaces";
+import scrollDown from "../service/scroll";
+import datafilter from "../service/datafilter";
+import { IState, IData, IgetLargeImage, IImage } from "./interfaces/interfaces";
 
 class App extends Component<{}, IState> {
   state = {
     images: [],
     largeImageURL: { url: "", alt: "" },
     loading: false,
-    error: "",
+    message: "",
     keyword: "",
     page: 1,
     lastPage: false,
@@ -25,11 +27,12 @@ class App extends Component<{}, IState> {
       this.fetchImage();
     }
     if (this.state.page > 2 && prevState.page !== this.state.page) {
-      this.scrollDown();
+      scrollDown();
     }
   }
 
   onSubmitForm = (query: string) => {
+    if (!query) return;
     this.setState({
       keyword: query,
       page: 1,
@@ -52,13 +55,6 @@ class App extends Component<{}, IState> {
     }
   };
 
-  scrollDown() {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-
   fetchImage = async () => {
     try {
       const { keyword, page } = this.state;
@@ -67,21 +63,24 @@ class App extends Component<{}, IState> {
       if (!data.total) {
         throw new Error("Sorry. There is no photos on your request.");
       }
+      const images = data.hits.map((hit: IImage) => datafilter(hit));
+
       this.setState(prevState => ({
-        images: [...prevState.images, ...data.hits],
+        images: [...prevState.images, ...images],
         page: prevState.page + 1,
+        message: "",
       }));
       this.isLastPage(data);
     } catch (error: any) {
-      this.setState({ error: error.message });
-      setTimeout(() => this.setState({ error: "" }), 3000);
+      this.setState({ message: error.message });
+      // setTimeout(() => this.setState({ message: "" }), 3000);
     } finally {
       this.setState({ loading: false });
     }
   };
 
   render() {
-    const { images, loading, error, largeImageURL, lastPage } = this.state;
+    const { images, loading, message, largeImageURL, lastPage } = this.state;
     return (
       <>
         <SearchBar onSubmitForm={this.onSubmitForm} />
@@ -91,9 +90,9 @@ class App extends Component<{}, IState> {
             <ModalImage largeImage={largeImageURL} />
           </Modal>
         )}
-        {images.length > 0 && !lastPage && !loading && <Button text='Load more' buttonAction={this.fetchImage} />}
+        {images.length >= 11 && !lastPage && !loading && <Button text='Load more' buttonAction={this.fetchImage} />}
         {loading && <Loader />}
-        {error && <ErrorComp error={error} />}
+        {message && <Message message={message} />}
       </>
     );
   }

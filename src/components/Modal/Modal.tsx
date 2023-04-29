@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { ModaLProps } from "../interfaces/interfaces";
 class Modal extends Component<ModaLProps> {
   componentDidMount() {
@@ -15,12 +15,14 @@ class Modal extends Component<ModaLProps> {
       this.props.onCloseModal();
     }
   };
-
+  onOverlayClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (event.target === event.currentTarget) this.props.onCloseModal();
+  };
   render() {
     const { onCloseModal, children } = this.props;
 
     return (
-      <div className='Overlay' onClick={onCloseModal}>
+      <div className='Overlay' onClick={this.onOverlayClick}>
         <div className='Modal'>{children}</div>
       </div>
     );
